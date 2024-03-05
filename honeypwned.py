@@ -3,9 +3,10 @@ import logging
 import threading
 import sys
 from socket import socket, timeout
+from flask import Flask
 
 def handle_client(client_socket, port, ip, remote_port):
-    logger.info("Connection Received: %s from %s:%d " % (port, ip, remote_port))
+    logger.info("Connection Received on port: %s from %s:%d " % (port, ip, remote_port))
     client_socket.settimeout(4)
     try:
         data = client_socket.recv(64)
@@ -13,6 +14,8 @@ def handle_client(client_socket, port, ip, remote_port):
         client_socket.send("Access Denied.\n".encode('utf8'))
     except timeout:
         pass
+    except ConnectionResetError as e:
+        logger.error("Connection Reset Error occurred")
     client_socket.close()
 
 def start_new_listener_thread(port):
@@ -32,6 +35,15 @@ def setup_logging():
     ch.setLevel(logging.DEBUG)
     logger.addHandler(ch)
     return logger
+
+def start_flask_server():
+    app = Flask(name)
+
+    @app.route('/')
+    def hello():
+        return "Hello, World!"
+
+    app.run(host='0.0.0.0', port=80)
 
 BIND_IP = '0.0.0.0'
 config_filepath = 'honeypwned.ini'
@@ -62,7 +74,13 @@ if len(ports) < 1:
     print('[!] No ports provided.')
     sys.exit(1)
 
+# Check if port 80 is in the ports list
+if '80' in ports_list:
+    ports_list.remove('80')
+    flask_thread = threading.Thread(target=start_flask_server)
+    flask_thread.start()
+
+# Start listener threads for other ports
 for port in ports_list:
     listeners_thread[port] = threading.Thread(target=start_new_listener_thread, args=(port,))
     listeners_thread[port].start()
-    
