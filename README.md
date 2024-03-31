@@ -21,7 +21,7 @@ Download a local copy up and follow these steps below.
 * Linux OS
 * Python Libraries
 ```python
-sudo pip install -r requirements.txt
+sudo pip3 install -r requirements.txt
 ```
 ```
 sudo apt install python3-tk
