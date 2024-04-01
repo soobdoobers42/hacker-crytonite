@@ -16,8 +16,6 @@ firebase_admin.initialize_app(cred, {
 
 # As an admin, the app has access to read and write all data, regradless of Security Rules
 ref = db.reference('/users')
-print(ref.get())
-
 # Create a flask application
 app = Flask(__name__)
 
@@ -31,21 +29,34 @@ def register():
         username = request.form.get("username")
         password=request.form.get("password")
 
-
         ref.push().set({
                 "username" : username,
                 "password" : password
         })
-
         
         return redirect(url_for("login"))
      
     return render_template("sign_up.html")
 
+
+     
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    username = request.form.get("username")
+    password = request.form.get("password")
 
-    return render_template("login.html")
+    user  = ref.order_by_key().get()
+    if len(user) > 1:
+        for key, val in user.items():
+                if  val["username"] != username or val["password"] != password:
+                    return render_template("login.html", error = "User or Password is incorrect", errorStatus = True)
+                else: 
+                        return redirect(url_for("home"))
+    else:
+        return render_template("login.html")
+                     
+
+
 
 # @app.route("/logout")
 # def logout():
