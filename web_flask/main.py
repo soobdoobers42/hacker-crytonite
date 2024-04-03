@@ -44,14 +44,17 @@ def register():
 def login():
     username = request.form.get("username")
     password = request.form.get("password")
+    print("username: ", username, "password", password)
 
     user  = ref.order_by_key().get()
     if len(user) > 1:
-        for key, val in user.items():
-                if  val["username"] != username or val["password"] != password:
-                    return render_template("login.html", error = "User or Password is incorrect", errorStatus = True)
-                else: 
-                        return redirect(url_for("home"))
+        if username != None and password != None:
+            for key, val in user.items():
+                    if  val["username"] == username and val["password"] == password:
+                         return redirect(url_for("home"))
+                           
+        else: 
+            return render_template("login.html")
     else:
         return render_template("login.html")
                      
