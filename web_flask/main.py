@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user
  
@@ -55,14 +55,66 @@ def register():
     # Renders sign_up template if user made a GET request
     return render_template("sign_up.html")
 
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     if request.method == "POST":
+#         user = Users.query.filter_by(
+#             username=request.form.get("username")).first()
+#         if user.password == request.form.get("password"):
+#             login_user(user)
+#             return redirect(url_for("home"))
+#     return render_template("login.html")
+
+#purposefully induced sql injection, terminal view only
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     if request.method == "POST":
+#         username = request.form.get("username")
+#         password = request.form.get("password")
+        
+#         # Introduce vulnerability by concatenating inputs directly into the SQL query
+#         query = f"SELECT * FROM Users WHERE username='{username}' AND password='{password}'"
+        
+#         cursor = db.engine.raw_connection().cursor()
+#         cursor.execute(query)
+#         users = cursor.fetchall()
+
+#         # Print debug information
+#         print("SQL Query:", query)
+#         print("Result:", users)
+
+#         if users:
+#             # User found, log them in
+#             return redirect(url_for("home"))
+#         else:
+#             # User not found, display error message
+#             return "Invalid username or password"
+#     return render_template("login.html")
+
+#purposefully induced sql injection query here
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = Users.query.filter_by(
-            username=request.form.get("username")).first()
-        if user.password == request.form.get("password"):
-            login_user(user)
-            return redirect(url_for("home"))
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        # Introduce vulnerability by concatenating inputs directly into the SQL query
+        query = f"SELECT * FROM Users WHERE username='{username}' AND password='{password}'"
+        
+        cursor = db.engine.raw_connection().cursor()
+        cursor.execute(query)
+        users = cursor.fetchall()
+
+        # Print debug information
+        print("SQL Query:", query)
+        print("Result:", users)
+
+        if users:
+            # Pass users data to home page upon successful injection
+            return redirect(url_for("home", users=users))
+        else:
+            # User not found, display error message
+            return "Invalid username or password"
     return render_template("login.html")
 
 @app.route("/logout")
@@ -70,10 +122,20 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
+#purposefully induce users into home html
 @app.route("/")
 def home():
-    # Render home.html on "/" route
-    return render_template("home.html")
+    # Retrieve users data passed from login logic
+    users = request.args.get("users", None)
+
+    # Render home.html and pass the users data
+    return render_template("home.html", users=users)
+
+#original route
+# @app.route("/")
+# def home():
+#     # Render home.html on "/" route
+#     return render_template("home.html")
 
 if __name__ == "__main__":
     app.run()
