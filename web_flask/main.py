@@ -117,8 +117,8 @@ def start_flask_server(logger):
                             nullable=False)
     
     
-    # Initialize app with extension
-    db.init_app(app)
+    # # Initialize app with extension
+    # db.init_app(app)
     # Create database within app context
     
     with app.app_context():
@@ -168,7 +168,7 @@ def start_flask_server(logger):
                 query = f"SELECT * FROM Users WHERE username=:username AND password=:password"
                 result = session.execute(query, {'username': username, 'password': password})
                 user = result.fetchone()
-                
+
             # output = conn.execute(query)
     
             # users = output.fetchall()
