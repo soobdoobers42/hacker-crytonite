@@ -130,7 +130,7 @@ def start_flask_server(logger):
     def register():
         logger.info("[%s] Connection Received on port: [80] from [%s] - [Accessing register page]" % (current_time, request.remote_addr))
         # Define the directory path
-        directory = os.path.join(app.root_path, 'static', 'register')
+        directory = os.path.join(app.root_path, 'templates')
         # Get the list of files in the directory
         files = os.listdir(directory)
     # If the user made a POST request, create a new user
@@ -152,7 +152,7 @@ def start_flask_server(logger):
     def login():
         logger.info("[%s] Connection Received on port: [80] from [%s] - [Accessing Login page]" % (current_time, request.remote_addr))
         # Define the directory path
-        directory = os.path.join(app.root_path, 'static', 'Login')
+        directory = os.path.join(app.root_path, 'templates')
         # Get the list of files in the directory
         files = os.listdir(directory)
         if request.method == "POST":
