@@ -1,12 +1,12 @@
-from flask import Flask, render_template, redirect, request, url_for, g
+from flask import Flask, render_template, redirect, request, url_for, g, has_request_context, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import db
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 import configparser
 import logging
 import threading
 import sys
 from socket import socket, timeout
-from flask import Flask, render_template, send_from_directory, request, has_request_context
 import os
 import paramiko
 import datetime
@@ -57,7 +57,6 @@ def get_files():
     # Return the list of files
     return files
  
-
 def start_flask_server(logger):
     # Create a flask application
     app = Flask(__name__)
@@ -67,8 +66,16 @@ def start_flask_server(logger):
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
     # Enter a secret key
     app.config["SECRET_KEY"] = "ENTER YOUR SECRET KEY"
+
     # Initialize flask-sqlalchemy extension
-    db = SQLAlchemy()
+    # db = SQLAlchemy()
+
+    # Establishing DB connection
+    try:
+        engine =db.create_engine("sqlite:///db.sqlite")
+        conn = engine.connect()
+    except Exception as e:
+        print(f'Database error: {e}')
     
     # LoginManager is needed for our application 
     # to be able to log in and out users
@@ -126,26 +133,27 @@ def start_flask_server(logger):
     def loader_user(user_id):
         return Users.query.get(user_id)
 
-    @app.route('/register', methods=["GET", "POST"])
-    def register():
-        logger.info("[%s] Connection Received on port: [80] from [%s] - [Accessing register page]" % (current_time, request.remote_addr))
-        # Define the directory path
-        directory = os.path.join(app.root_path, 'templates')
-        # Get the list of files in the directory
-        files = os.listdir(directory)
-    # If the user made a POST request, create a new user
-        if request.method == "POST":
-            user = Users(username=request.form.get("username"),
-                        password=request.form.get("password"))
-            # Add the user to the database
-            db.session.add(user)
-            # Commit the changes made
-            db.session.commit()
-            # Once user account created, redirect them
-            # to login route (created later on)
-            return redirect(url_for("login"))
-        # Renders sign_up template if user made a GET request
-        return render_template("sign_up.html", files=files)
+    # Not needed for demo
+    # @app.route('/register', methods=["GET", "POST"])
+    # def register():
+    #     logger.info("[%s] Connection Received on port: [80] from [%s] - [Accessing register page]" % (current_time, request.remote_addr))
+    #     # Define the directory path
+    #     directory = os.path.join(app.root_path, 'templates')
+    #     # Get the list of files in the directory
+    #     files = os.listdir(directory)
+    # # If the user made a POST request, create a new user
+    #     if request.method == "POST":
+    #         user = Users(username=request.form.get("username"),
+    #                     password=request.form.get("password"))
+    #         # Add the user to the database
+    #         db.session.add(user)
+    #         # Commit the changes made
+    #         db.session.commit()
+    #         # Once user account created, redirect them
+    #         # to login route (created later on)
+    #         return redirect(url_for("login"))
+    #     # Renders sign_up template if user made a GET request
+    #     return render_template("sign_up.html", files=files)
 
     #purposefully induced sql injection query here
     @app.route("/login", methods=["GET", "POST"])
@@ -161,10 +169,9 @@ def start_flask_server(logger):
             
             # Introduce vulnerability by concatenating inputs directly into the SQL query
             query = f"SELECT * FROM Users WHERE username='{username}' AND password='{password}'"
-            
-            cursor = db.engine.raw_connection().cursor()
-            cursor.execute(query)
-            users = cursor.fetchall()
+            output = conn.execute(query)
+    
+            users = output.fetchall()
 
             # Print debug information
             print("SQL Query:", query)
