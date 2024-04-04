@@ -1,6 +1,5 @@
 from flask import Flask, render_template, redirect, request, url_for, g, has_request_context, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 import configparser
 import logging
@@ -68,11 +67,11 @@ def start_flask_server(logger):
     app.config["SECRET_KEY"] = "ENTER YOUR SECRET KEY"
 
     # Initialize flask-sqlalchemy extension
-    db = SQLAlchemy()
+    db = SQLAlchemy(app)
 
     # Establishing DB connection    
-    engine =create_engine("sqlite:///db.sqlite")
-    conn = engine.connect()
+    # engine =db.create_engine("sqlite:///db.sqlite")
+    # conn = engine.connect()
     
     # LoginManager is needed for our application 
     # to be able to log in and out users
@@ -163,20 +162,24 @@ def start_flask_server(logger):
         if request.method == "POST":
             username = request.form.get("username")
             password = request.form.get("password")
-            
-            # Introduce vulnerability by concatenating inputs directly into the SQL query
-            query = f"SELECT * FROM Users WHERE username='{username}' AND password='{password}'"
-            output = conn.execute(query)
+
+            with db.session() as session:
+                # Introduce vulnerability by concatenating inputs directly into the SQL query
+                query = f"SELECT * FROM Users WHERE username=:username AND password=:password"
+                result = session.execute(query, {'username': username, 'password': password})
+                user = result.fetchone()
+                
+            # output = conn.execute(query)
     
-            users = output.fetchall()
+            # users = output.fetchall()
 
             # Print debug information
             print("SQL Query:", query)
-            print("Result:", users)
+            print("Result:", user)
 
-            if users:
+            if user:
                 # Pass users data to home page upon successful injection
-                return redirect(url_for("home", users=users))
+                return redirect(url_for("home", users=user))
             else:
                 # User not found, display error message
                 return "Invalid username or password"
