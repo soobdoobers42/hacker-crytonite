@@ -1,6 +1,5 @@
 from flask import Flask, render_template, redirect, request, url_for, g, has_request_context, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import db
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 import configparser
 import logging
@@ -70,12 +69,9 @@ def start_flask_server(logger):
     # Initialize flask-sqlalchemy extension
     # db = SQLAlchemy()
 
-    # Establishing DB connection
-    try:
-        engine =db.create_engine("sqlite:///db.sqlite")
-        conn = engine.connect()
-    except Exception as e:
-        print(f'Database error: {e}')
+    # Establishing DB connection    
+    engine =SQLAlchemy.create_engine("sqlite:///db.sqlite")
+    conn = engine.connect()
     
     # LoginManager is needed for our application 
     # to be able to log in and out users
