@@ -68,7 +68,7 @@ def start_flask_server(logger):
     app.config["SECRET_KEY"] = "ENTER YOUR SECRET KEY"
 
     # Initialize flask-sqlalchemy extension
-    # db = SQLAlchemy()
+    db = SQLAlchemy()
 
     # Establishing DB connection    
     engine =create_engine("sqlite:///db.sqlite")
