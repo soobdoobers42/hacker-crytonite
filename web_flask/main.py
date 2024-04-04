@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, request, url_for, g, has_request_context, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
 from flask_login import LoginManager, UserMixin, login_user, logout_user
 import configparser
 import logging
@@ -70,7 +71,7 @@ def start_flask_server(logger):
     # db = SQLAlchemy()
 
     # Establishing DB connection    
-    engine =SQLAlchemy.create_engine("sqlite:///db.sqlite")
+    engine =create_engine("sqlite:///db.sqlite")
     conn = engine.connect()
     
     # LoginManager is needed for our application 
