@@ -1,7 +1,0 @@
-configparser
-Flask
-PyPDF2
-requests
-netifaces
-pyinstaller
-paramiko
