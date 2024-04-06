@@ -5,7 +5,8 @@
   <img width="598" height="346" src="https://github.com/lmaoggrofl/honeypwned/assets/110363544/83c449b1-f5a8-4bba-b06d-00d1e235b076">
 </p>
 
-Honeypwned is designed to counter the vulnerabilities and misuse of Virtual Private Networks (VPNs). 
+Honeypwned is a low interaction honeypot that can emulate specific services or protocols, such as SSH and HTTP
+designed to counter the vulnerabilities and misuse of Virtual Private Networks (VPNs). 
 As VPNs have gained popularity for enhancing online security and privacy, they've also been utilized by malicious actors to conceal their identities. 
 Positioned strategically within the DMZ, Honeypwned operates as a honeypot, luring in these threat actors with enticing files. 
 Once engaged, Honeypwned exposes their true identities, effectively mitigating cybersecurity risks
