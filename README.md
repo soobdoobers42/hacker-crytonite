@@ -20,27 +20,40 @@ Download a local copy up and follow these steps below.
 
 * Linux OS
 * Python Libraries
-```python
+```shell
 sudo pip3 install -r requirements.txt
 ```
-```
+```shell
 sudo apt install python3-tk
 ```
 
 ### Usage and Setting up
 
-1. Download the repo as a zip
-2. Extract the files
+1. Download the repo as a zip or clone the repo
+   ```shell
+   git clone https://github.com/soobdoobers42/hacker-crytonite.git
+   ```
+2. Install libraries and tkinter shown in the prerequisites
 3. Change the IP in scripts/PDFViewerPayload.py and then run the command below
-   ```python
+   ```shell
+   cd hacker-crytonite/scripts
+   nano PDFViewerPayload.py
+   ```
+   ```shell
    pyinstaller --onefile --name PDFViewer PDFViewerPayload.py
    ```
-4. Zip the payload and replace the current zip in static/tools/
+4. Navigate to dist, zip the payload and replace the current zip in static/tools/
+   ```shell
+   cd dist
+   zip PDFViewer.zip PDFViewer
+   rm -rf ../static/tools/PDFViewer.zip
+   mv PDFViewer.zip ../static/tools/PDFViewer.zip
+   ```
 5. Open config.ini to change the ports you want to open for the honeypot (make sure port 80 and 8888 are open)
 6. Save the config file
 7. Run the honeypot (make sure to run as privd user)
    ```python
-   sudo python3 honeypwned.py
+   sudo python3 main.py
    ```
 8. Listen to any traffic interacting with ports that you set open
 9. If someone with a VPN downloads and run the payload, you will see their true IP
